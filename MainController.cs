@@ -1,20 +1,26 @@
 ﻿using Profile;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class MainController : BaseController
 {
-    public MainController(Transform placeForUi, ProfilePlayer profilePlayer)
+    public MainController(Transform placeForUi, ProfilePlayer profilePlayer, List<ItemConfig> itemConfigs)
     {
         _profilePlayer = profilePlayer;
         _placeForUi = placeForUi;
+        _itemConfigs = itemConfigs;
+
         OnChangeGameState(_profilePlayer.CurrentState.Value);
         profilePlayer.CurrentState.SubscribeOnChange(OnChangeGameState);
     }
 
     private MainMenuController _mainMenuController;
     private GameController _gameController;
+    private InventoryController _inventoryController;
+
     private readonly Transform _placeForUi;
     private readonly ProfilePlayer _profilePlayer;
+    private readonly List<ItemConfig> _itemConfigs;
 
     protected override void OnDispose()
     {
@@ -33,6 +39,9 @@ public class MainController : BaseController
                 _gameController?.Dispose();
                 break;
             case GameState.Game:
+                _inventoryController = new InventoryController(_itemConfigs);
+                _inventoryController.ShowInventory();
+
                 _gameController = new GameController(_profilePlayer);
                 _mainMenuController?.Dispose();
                 break;
